@@ -29,7 +29,7 @@ export default function GalleryPage() {
 
           {/* Upload Box */}
           <div className="w-200 border border-[#E5B574] rounded-md py-10 px-4 flex flex-col items-center mb-8 bg-white" style={{ minHeight: 180 }}>
-            <Image src="/images/gallery/photo_icon.png" alt="Add Photos" width={50} height={50} className="mb-3" />
+            <Image src="/images/Gallery/photo_icon.png" alt="Add Photos" width={50} height={50} className="mb-3" />
             <div className="text-base text-[#08080A] mt-2" style={{ fontFamily: 'Montserrat', fontWeight: 500 }}>
               Add Your Photos & Videos Now
             </div>
