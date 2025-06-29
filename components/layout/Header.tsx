@@ -3,12 +3,13 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
+import Link from 'next/link'
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const navigationItems = [
-    { name: 'Home', href: '#' },
+    { name: 'Home', href: '/' },
     { name: 'Gallery', href: '/gallery' },
     { name: 'Reply to Invitation', href: '#rsvp' },
   ]
@@ -18,9 +19,9 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-6 py-2">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center select-none">
+          <Link href="/" className="flex items-center select-none hover:opacity-80 transition-opacity">
             <img src="/images/logo.png" alt="Vesello Logo" className="h-12 w-auto mr-2" style={{objectFit: 'contain'}} />
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-0">
