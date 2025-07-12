@@ -83,9 +83,9 @@ export default function TeamSection() {
   return (
     <CollapsibleSection title="Our Wedding Team">
       {/* Main Title */}
-      <div className="text-center mb-6 mt-2">
+      <div className="text-center mb-4 sm:mb-6 mt-2">
         <span
-          className="block text-[54px] md:text-[64px] font-normal mb-2"
+          className="block font-normal mb-2"
           style={{
             fontFamily: 'Sail',
             background: 'linear-gradient(90deg, #E5B574 0%, #C18037 100%)',
@@ -94,13 +94,19 @@ export default function TeamSection() {
             display: 'inline-block',
             letterSpacing: '2px',
             lineHeight: 1.1,
+            fontSize: 'clamp(2.5rem, 10vw, 4rem)',
           }}
         >
           Wedding Team
         </span>
       </div>
       {/* Mission Text */}
-      <div className="text-center mb-10 max-w-2xl mx-auto" style={{ fontFamily: 'Montserrat', color: '#222' }}>
+      <div className="text-center mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto px-4 sm:px-6" 
+           style={{ 
+             fontFamily: 'Montserrat', 
+             color: '#222',
+             fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)'
+           }}>
         <div className="mb-2">Dear Guests - We Have An Important Mission For You:</div>
         <div className="mb-2 font-bold text-black">Like, Follow, And Tag The Amazing Team Behind Today's Magic.</div>
         <div className="mb-2">Every Click Is A Like A Loud 'Thank You!' To Them!</div>
@@ -110,11 +116,16 @@ export default function TeamSection() {
         </div>
       </div>
       {/* Team Grid: First Row (4 members) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12 max-w-5xl mx-auto mt-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-4 sm:gap-x-6 md:gap-x-8 gap-y-8 sm:gap-y-10 md:gap-y-12 max-w-5xl mx-auto mt-4 mb-6 sm:mb-8 px-4 sm:px-6">
         {firstRow.map((member) => (
           <div key={member.id} className="flex flex-col items-center">
             {/* Custom image mask: top-left and bottom-right rounded */}
-            <div className="w-48 h-48 mb-4 overflow-hidden" style={{borderBottomRightRadius: '200px', borderTopRightRadius: 0, borderBottomLeftRadius: 0 }}>
+            <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mb-3 sm:mb-4 overflow-hidden" 
+                 style={{
+                   borderBottomRightRadius: 'clamp(100px, 25vw, 200px)', 
+                   borderTopRightRadius: 0, 
+                   borderBottomLeftRadius: 0 
+                 }}>
               <Image
                 src={member.image}
                 alt={member.name}
@@ -123,8 +134,20 @@ export default function TeamSection() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="text-md font-semibold text-black text-center" style={{ fontFamily: 'Montserrat' }}>{member.role}</div>
-            <div className="text-base text-black text-center mb-2" style={{ fontFamily: 'Montserrat' }}>{member.name}</div>
+            <div className="font-semibold text-black text-center" 
+                 style={{ 
+                   fontFamily: 'Montserrat',
+                   fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)'
+                 }}>
+              {member.role}
+            </div>
+            <div className="text-black text-center mb-2" 
+                 style={{ 
+                   fontFamily: 'Montserrat',
+                   fontSize: 'clamp(0.875rem, 2.5vw, 1rem)'
+                 }}>
+              {member.name}
+            </div>
             <div className="flex gap-2 mt-1">
               {member.socials.map((icon, idx) => (
                 <span key={idx}>{socialIcons[icon]}</span>
@@ -134,11 +157,16 @@ export default function TeamSection() {
         ))}
       </div>
       {/* Team Grid: Second Row (3 members) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12 max-w-3xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 md:gap-x-8 gap-y-8 sm:gap-y-10 md:gap-y-12 max-w-3xl mx-auto px-4 sm:px-6">
         {secondRow.map((member) => (
           <div key={member.id} className="flex flex-col items-center">
             {/* Custom image mask: top-left and bottom-right rounded */}
-            <div className="w-48 h-48 mb-4 overflow-hidden" style={{ borderBottomRightRadius: '200px', borderTopRightRadius: 0, borderBottomLeftRadius: 0 }}>
+            <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mb-3 sm:mb-4 overflow-hidden" 
+                 style={{ 
+                   borderBottomRightRadius: 'clamp(100px, 25vw, 200px)', 
+                   borderTopRightRadius: 0, 
+                   borderBottomLeftRadius: 0 
+                 }}>
               <Image
                 src={member.image}
                 alt={member.name}
@@ -147,8 +175,20 @@ export default function TeamSection() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="text-md font-semibold text-black text-center" style={{ fontFamily: 'Montserrat' }}>{member.role}</div>
-            <div className="text-base text-black text-center mb-2" style={{ fontFamily: 'Montserrat' }}>{member.name}</div>
+            <div className="font-semibold text-black text-center" 
+                 style={{ 
+                   fontFamily: 'Montserrat',
+                   fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)'
+                 }}>
+              {member.role}
+            </div>
+            <div className="text-black text-center mb-2" 
+                 style={{ 
+                   fontFamily: 'Montserrat',
+                   fontSize: 'clamp(0.875rem, 2.5vw, 1rem)'
+                 }}>
+              {member.name}
+            </div>
             <div className="flex gap-2 mt-1">
               {member.socials.map((icon, idx) => (
                 <span key={idx}>{socialIcons[icon]}</span>

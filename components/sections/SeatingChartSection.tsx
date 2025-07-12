@@ -86,22 +86,34 @@ export default function SeatingChartSection() {
           alt="Welcome"
           width={900}
           height={120}
-          className="h-auto w-full max-w-3xl object-contain"
+          className="h-auto w-full max-w-3xl object-contain img-responsive"
           priority
         />
       </div>
 
       {/* Tables Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-12 gap-y-10 mt-10 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 sm:gap-x-8 md:gap-x-12 gap-y-6 sm:gap-y-8 md:gap-y-10 mt-6 sm:mt-8 md:mt-10 max-w-5xl mx-auto px-4 sm:px-6">
         {tableData.map((table) => (
           <div
             key={table.id}
-            className="p-6 text-center"
+            className="p-4 sm:p-6 text-center"
           >
-            <h3 className="text-xl font-bold text-black mb-2" style={{ fontFamily: 'Montserrat' }}>TABLE {table.id}</h3>
+            <h3 className="font-bold text-black mb-2" 
+                style={{ 
+                  fontFamily: 'Montserrat',
+                  fontSize: 'clamp(1rem, 3vw, 1.25rem)'
+                }}>
+              TABLE {table.id}
+            </h3>
             <div className="space-y-1">
               {table.guests.map((guest, index) => (
-                <p key={index} className="text-gray-700" style={{ fontFamily: 'Montserrat' }}>{guest}</p>
+                <p key={index} className="text-gray-700" 
+                   style={{ 
+                     fontFamily: 'Montserrat',
+                     fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)'
+                   }}>
+                  {guest}
+                </p>
               ))}
             </div>
           </div>

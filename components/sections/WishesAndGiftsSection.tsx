@@ -8,9 +8,9 @@ export default function WishesAndGiftsSection() {
   return (
     <CollapsibleSection title="Wishes And Gifts">
       {/* Header */}
-      <div className="text-center mb-10 mt-2">
+      <div className="text-center mb-6 sm:mb-8 md:mb-10 mt-2">
         <span
-          className="block text-[54px] md:text-[64px] font-normal mb-2"
+          className="block font-normal mb-2"
           style={{
             fontFamily: 'Sail',
             background: 'linear-gradient(90deg, #E5B574 0%, #C18037 100%)',
@@ -19,17 +19,28 @@ export default function WishesAndGiftsSection() {
             display: 'inline-block',
             letterSpacing: '2px',
             lineHeight: 1.1,
+            fontSize: 'clamp(2.5rem, 10vw, 4rem)',
           }}
         >
           Wishes And Gifts
         </span>
       </div>
       {/* Two Columns */}
-      <div className="flex flex-col md:flex-row justify-center items-start gap-10 md:gap-0 mb-16 w-full max-w-4xl mx-auto">
+      <div className="flex flex-col md:flex-row justify-center items-start gap-6 sm:gap-8 md:gap-10 mb-8 sm:mb-12 md:mb-16 w-full max-w-4xl mx-auto px-4 sm:px-6">
         {/* Left Column */}
         <div className="flex-1 text-center md:text-right pr-0 md:pr-8">
-          <div className="text-xl font-bold text-black mb-3 uppercase" style={{ fontFamily: 'Montserrat' }}>At The Church</div>
-          <ul className="space-y-1 text-black" style={{ fontFamily: 'Montserrat' }}>
+          <div className="font-bold text-black mb-3 uppercase" 
+               style={{ 
+                 fontFamily: 'Montserrat',
+                 fontSize: 'clamp(1rem, 3vw, 1.25rem)'
+               }}>
+            At The Church
+          </div>
+          <ul className="space-y-1 text-black" 
+              style={{ 
+                fontFamily: 'Montserrat',
+                fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)'
+              }}>
             <li>Just After The Ceremony</li>
             <li>Upon Entering The</li>
             <li>Wedding Hall</li>
@@ -47,8 +58,18 @@ export default function WishesAndGiftsSection() {
         </div>
         {/* Right Column */}
         <div className="flex-1 text-center md:text-left pl-0 md:pl-8">
-          <div className="text-xl font-bold text-black mb-3 uppercase" style={{ fontFamily: 'Montserrat' }}>At The Wedding</div>
-          <ul className="space-y-1 text-black" style={{ fontFamily: 'Montserrat' }}>
+          <div className="font-bold text-black mb-3 uppercase" 
+               style={{ 
+                 fontFamily: 'Montserrat',
+                 fontSize: 'clamp(1rem, 3vw, 1.25rem)'
+               }}>
+            At The Wedding
+          </div>
+          <ul className="space-y-1 text-black" 
+              style={{ 
+                fontFamily: 'Montserrat',
+                fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)'
+              }}>
             <li>After The Church Ceremony</li>
             <li>At The Church Exit</li>
             <li>Outside The Chapel</li>
@@ -62,9 +83,20 @@ export default function WishesAndGiftsSection() {
         </div>
       </div>
       {/* Gifts Section */}
-      <div className="text-center mt-10">
-        <div className="text-2xl font-bold mb-2" style={{ fontFamily: 'Montserrat', color: '#E5B574' }}>Gifts</div>
-        <div className="space-y-1 text-black" style={{ fontFamily: 'Montserrat' }}>
+      <div className="text-center mt-6 sm:mt-8 md:mt-10">
+        <div className="font-bold mb-2" 
+             style={{ 
+               fontFamily: 'Montserrat', 
+               color: '#E5B574',
+               fontSize: 'clamp(1.25rem, 4vw, 1.5rem)'
+             }}>
+          Gifts
+        </div>
+        <div className="space-y-1 text-black" 
+             style={{ 
+               fontFamily: 'Montserrat',
+               fontSize: 'clamp(0.75rem, 2.5vw, 0.875rem)'
+             }}>
           <div>Bottle Of Wine Instead Of Flowers</div>
           <div>Books Instead Of Bouquets</div>
           <div>Charity Donation Instead Of Gifts</div>

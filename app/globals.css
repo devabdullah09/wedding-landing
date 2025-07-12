@@ -65,6 +65,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif;
   }
 }
 
@@ -88,3 +89,111 @@
 .font-sail {
   font-family: 'Sail', cursive;
 }
+
+.sail-font {
+  font-family: 'Sail', cursive;
+}
+
+/* Responsive font utilities */
+.text-responsive-xs {
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.text-responsive-sm {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.text-responsive-base {
+  font-size: clamp(1rem, 3vw, 1.125rem);
+}
+
+.text-responsive-lg {
+  font-size: clamp(1.125rem, 3.5vw, 1.25rem);
+}
+
+.text-responsive-xl {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+}
+
+.text-responsive-2xl {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+.text-responsive-3xl {
+  font-size: clamp(2rem, 6vw, 2.5rem);
+}
+
+.text-responsive-4xl {
+  font-size: clamp(2.5rem, 7vw, 3rem);
+}
+
+.text-responsive-5xl {
+  font-size: clamp(3rem, 8vw, 4rem);
+}
+
+.text-responsive-6xl {
+  font-size: clamp(4rem, 10vw, 5rem);
+}
+
+/* Responsive Sail font sizes */
+.sail-text-responsive-sm {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.sail-text-responsive-base {
+  font-size: clamp(2rem, 5vw, 2.5rem);
+}
+
+.sail-text-responsive-lg {
+  font-size: clamp(2.5rem, 6vw, 3rem);
+}
+
+.sail-text-responsive-xl {
+  font-size: clamp(3rem, 7vw, 4rem);
+}
+
+.sail-text-responsive-2xl {
+  font-size: clamp(4rem, 9vw, 5rem);
+}
+
+.sail-text-responsive-3xl {
+  font-size: clamp(5rem, 12vw, 6rem);
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  .mobile-text-xs { font-size: 0.75rem; }
+  .mobile-text-sm { font-size: 0.875rem; }
+  .mobile-text-base { font-size: 1rem; }
+  .mobile-text-lg { font-size: 1.125rem; }
+  .mobile-text-xl { font-size: 1.25rem; }
+  .mobile-text-2xl { font-size: 1.5rem; }
+  .mobile-text-3xl { font-size: 1.875rem; }
+  .mobile-text-4xl { font-size: 2.25rem; }
+  
+  .mobile-sail-sm { font-size: 1.5rem; }
+  .mobile-sail-base { font-size: 1.75rem; }
+  .mobile-sail-lg { font-size: 2rem; }
+  .mobile-sail-xl { font-size: 2.25rem; }
+  .mobile-sail-2xl { font-size: 2.5rem; }
+}
+
+/* Responsive decoration utilities */
+.decoration-responsive {
+  width: clamp(200px, 40vw, 350px);
+  height: clamp(250px, 50vw, 450px);
+}
+
+.decoration-responsive-sm {
+  width: clamp(150px, 30vw, 280px);
+  height: clamp(200px, 40vw, 350px);
+}
+
+/* Ensure images scale properly on mobile */
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Sail&display=swap');

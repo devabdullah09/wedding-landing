@@ -11,7 +11,7 @@ const Header = () => {
   const navigationItems = [
     { name: 'Home', href: '/' },
     { name: 'Gallery', href: '/gallery' },
-    { name: 'Reply to Invitation', href: '#rsvp' },
+    { name: 'Reply to Invitation', href: '/invitation' },
   ]
 
   return (
@@ -27,13 +27,13 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-0">
             {navigationItems.map((item, idx) => (
               <React.Fragment key={item.name}>
-                <a
+                <Link
                   href={item.href}
                   className={`text-gray-800 hover:text-amber-500 transition-colors text-base px-4 ${item.name === 'Home' ? 'font-bold' : 'font-normal'}`}
                   style={{ minHeight: '40px', display: 'flex', alignItems: 'center', fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}
                 >
                   {item.name}
-                </a>
+                </Link>
                 {idx < navigationItems.length - 1 && (
                   <div className="h-5 w-px bg-gray-300 mx-0" />
                 )}
@@ -57,7 +57,7 @@ const Header = () => {
           <div className="md:hidden py-4 border-t border-gray-100 mt-4">
             <nav className="flex flex-col space-y-4">
               {navigationItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className={`text-gray-800 hover:text-amber-500 text-base font-medium py-2 ${item.name === 'Home' ? 'font-bold' : 'font-normal'}`}
@@ -65,7 +65,7 @@ const Header = () => {
                   style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>

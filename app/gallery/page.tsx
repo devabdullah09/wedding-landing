@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function GalleryPage() {
   return (
@@ -28,17 +29,20 @@ export default function GalleryPage() {
           </div>
 
           {/* Upload Box */}
-          <div className="w-200 border border-[#E5B574] rounded-md py-10 px-4 flex flex-col items-center mb-8 bg-white" style={{ minHeight: 180 }}>
+          <Link href="/gallery/upload" className="w-200 border border-[#E5B574] rounded-md py-10 px-4 flex flex-col items-center mb-8 bg-white hover:shadow-lg transition cursor-pointer" style={{ minHeight: 180, textDecoration: 'none' }}>
             <Image src="/images/Gallery/photo_icon.png" alt="Add Photos" width={50} height={50} className="mb-3" />
             <div className="text-base text-[#08080A] mt-2" style={{ fontFamily: 'Montserrat', fontWeight: 500 }}>
               Add Your Photos & Videos Now
             </div>
-          </div>
+          </Link>
 
           {/* View Gallery Button */}
-          <button className="bg-gradient-to-r from-[#E5B574] to-[#C18037] text-white font-semibold rounded-md px-8 py-2 mb-10 shadow hover:opacity-90 transition" style={{ fontFamily: 'Montserrat', fontWeight: 600, fontSize: '1rem', minWidth: 160 }}>
-            View Gallery
-          </button>
+          <Link href="/gallery/main">
+            <button className="bg-gradient-to-r from-[#E5B574] to-[#C18037] text-white font-semibold rounded-md px-8 py-2 mb-10 shadow hover:opacity-90 transition" 
+             style={{ fontFamily: 'Montserrat', fontWeight: 600, fontSize: '1rem', minWidth: 160 }}>
+              View Gallery
+            </button>
+          </Link>
 
           {/* Mission Statement */}
           <div className="text-center text-[#08080A] mb-10 max-w-xl mx-auto" style={{ fontFamily: 'Montserrat', fontWeight: 400, fontSize: '1rem', lineHeight: 1.6 }}>

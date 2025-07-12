@@ -20,7 +20,12 @@ export default function WeddingTimeline() {
         <img
           src="/images/Elegent line-01 1.png"
           alt="Divider"
-          style={{maxWidth: '1500px', minHeight: '54px', maxHeight: '90px' }}
+          className="img-responsive"
+          style={{
+            maxWidth: '1500px', 
+            minHeight: 'clamp(30px, 8vw, 54px)', 
+            maxHeight: 'clamp(54px, 12vw, 90px)'
+          }}
         />
       </div>
       {/* Header inside card */}
@@ -29,7 +34,7 @@ export default function WeddingTimeline() {
           style={{
             fontFamily: 'Sail',
             fontWeight: 500,
-            fontSize: '48px',
+            fontSize: 'clamp(2rem, 8vw, 3rem)',
             background: 'linear-gradient(90deg, #E5B574 0%, #D59C58 43%, #C18037 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -44,22 +49,50 @@ export default function WeddingTimeline() {
       </div>
       {/* Timeline Content */}
       <div className="flex flex-col justify-center items-center">
-        <div className="relative w-full flex flex-col justify-center items-center overflow-visible" style={{ minHeight: '600px', maxWidth: '500px' }}>
+        <div className="relative w-full flex flex-col justify-center items-center overflow-visible px-4 sm:px-6" 
+             style={{ 
+               minHeight: 'clamp(400px, 60vh, 600px)', 
+               maxWidth: '500px' 
+             }}>
           {/* Timeline vertical line (absolute, spans all events) */}
-          <div className="absolute" style={{ left: '50%', top: 0, bottom: 0, width: '3px', background: '#E5B574', transform: 'translateX(-50%)', borderRadius: '2px', zIndex: 1 }} />
+          <div className="absolute" style={{ 
+            left: '50%', 
+            top: 0, 
+            bottom: 0, 
+            width: '3px', 
+            background: '#E5B574', 
+            transform: 'translateX(-50%)', 
+            borderRadius: '2px', 
+            zIndex: 1 
+          }} />
           {/* Timeline events */}
           {events.map((event, idx, arr) => (
-            <div key={event.time} className="flex flex-row items-center w-full relative" style={{ minHeight: '70px', marginBottom: idx !== arr.length - 1 ? '20px' : 0 }}>
+            <div key={event.time} className="flex flex-row items-center w-full relative" 
+                 style={{ 
+                   minHeight: 'clamp(60px, 8vh, 70px)', 
+                   marginBottom: idx !== arr.length - 1 ? 'clamp(15px, 3vh, 20px)' : 0 
+                 }}>
               {/* Left side - Time */}
-              <div className="flex justify-end items-center" style={{ flex: '1', paddingRight: '30px' }}>
-                <span style={{ fontFamily: 'Montserrat', fontWeight: 600, fontSize: '20px', color: '#08080A', letterSpacing: '0.01em', whiteSpace: 'nowrap', lineHeight: 1, textAlign: 'right' }}>{event.time}</span>
+              <div className="flex justify-end items-center" style={{ flex: '1', paddingRight: 'clamp(15px, 4vw, 30px)' }}>
+                <span style={{ 
+                  fontFamily: 'Montserrat', 
+                  fontWeight: 600, 
+                  fontSize: 'clamp(0.875rem, 3vw, 1.25rem)', 
+                  color: '#08080A', 
+                  letterSpacing: '0.01em', 
+                  whiteSpace: 'nowrap', 
+                  lineHeight: 1, 
+                  textAlign: 'right' 
+                }}>
+                  {event.time}
+                </span>
               </div>
               {/* Center - Dot and horizontal line */}
-              <div className="flex items-center justify-center relative" style={{ width: '80px', zIndex: 2 }}>
+              <div className="flex items-center justify-center relative" style={{ width: 'clamp(60px, 15vw, 80px)', zIndex: 2 }}>
                 {/* Dot */}
                 <div style={{ 
-                  width: '16px', 
-                  height: '16px', 
+                  width: 'clamp(12px, 3vw, 16px)', 
+                  height: 'clamp(12px, 3vw, 16px)', 
                   background: '#E5B574', 
                   border: '2px solid #C18037', 
                   borderRadius: '50%', 
@@ -71,7 +104,7 @@ export default function WeddingTimeline() {
                 }} />
                 {/* Horizontal line */}
                 <div style={{ 
-                  width: '60px', 
+                  width: 'clamp(40px, 10vw, 60px)', 
                   height: '2px', 
                   background: '#E5B574', 
                   position: 'absolute',
@@ -81,17 +114,29 @@ export default function WeddingTimeline() {
                 }} />
               </div>
               {/* Right side - Icon and label */}
-              <div className="flex flex-row items-center" style={{ flex: '1', paddingLeft: '30px' }}>
-                <img src={event.icon} alt={event.label} style={{ width: '70px', height: '70px', objectFit: 'contain', marginRight: '12px', flexShrink: 0 }} />
+              <div className="flex flex-row items-center" style={{ flex: '1', paddingLeft: 'clamp(15px, 4vw, 30px)' }}>
+                <img 
+                  src={event.icon} 
+                  alt={event.label} 
+                  style={{ 
+                    width: 'clamp(50px, 12vw, 70px)', 
+                    height: 'clamp(50px, 12vw, 70px)', 
+                    objectFit: 'contain', 
+                    marginRight: 'clamp(8px, 2vw, 12px)', 
+                    flexShrink: 0 
+                  }} 
+                />
                 <span style={{ 
                   fontFamily: 'Montserrat', 
                   fontWeight: 600, 
-                  fontSize: '16px', 
+                  fontSize: 'clamp(0.75rem, 2.5vw, 1rem)', 
                   color: '#08080A', 
                   letterSpacing: '0.01em', 
                   lineHeight: 1.2,
                   textAlign: 'left'
-                }}>{event.label}</span>
+                }}>
+                  {event.label}
+                </span>
               </div>
             </div>
           ))}
@@ -100,15 +145,15 @@ export default function WeddingTimeline() {
       {/* Gold leaves at bottom corners, inside the border and not overlapping */}
       <img
         src="/images/Vector (2).png"
-        className="absolute z-10 pointer-events-none"
+        className="absolute z-10 pointer-events-none decoration-responsive"
         alt="Decoration left"
-        style={{ width: '350px', height: '450px', bottom: '1px', left: '1px' }}
+        style={{ bottom: '1px', left: '1px' }}
       />
       <img
         src="/images/Vector.png"
-        className="absolute z-10 pointer-events-none"
+        className="absolute z-10 pointer-events-none decoration-responsive-sm"
         alt="Decoration right"
-        style={{ width: '280px', height: '350px', bottom: '1px', right: '1px' }}
+        style={{ bottom: '1px', right: '1px' }}
       />
     </CollapsibleSection>
   );
