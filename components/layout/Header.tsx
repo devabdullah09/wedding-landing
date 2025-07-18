@@ -75,4 +75,25 @@ const Header = () => {
   )
 }
 
+export const DashboardHeader = () => {
+  const router = require('next/navigation').useRouter();
+  return (
+    <header className="w-full bg-white shadow-sm flex items-center justify-between px-8 h-20">
+      <div className="flex items-center select-none">
+        <img src="/images/logo.png" alt="Vesello Logo" className="h-10 w-auto mr-2" style={{objectFit: 'contain'}} />
+    
+      </div>
+      <button
+        className="bg-black text-white px-6 py-2 rounded-md font-semibold text-base hover:bg-[#E5B574] hover:text-black transition-colors"
+        onClick={() => {
+          localStorage.removeItem('vesello_auth');
+          router.push('/');
+        }}
+      >
+        Logout
+      </button>
+    </header>
+  );
+};
+
 export default Header

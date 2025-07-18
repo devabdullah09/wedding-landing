@@ -21,10 +21,10 @@ export default function AfterPartyAttendancePage() {
   };
 
   const handleContinue = () => {
-    router.push('/invitation/food');
+    router.push('/invitation/food-selection');
   };
   const handleSkip = () => {
-    router.push('/invitation/food');
+    router.push('/invitation/food-selection');
   };
 
   return (

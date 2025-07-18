@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,17 +11,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder login logic
     if (!email || !password) {
       setError("Please enter both email and password.");
       return;
     }
     setError("");
-    // TODO: Implement real authentication
-    alert(`Logged in as ${email}`);
+    // Mock authentication: Super Admin if email is admin@vesello.com, else Organizer
+    const role = email === "admin@vesello.com" ? "superadmin" : "organizer";
+    localStorage.setItem("vesello_auth", JSON.stringify({ isAuthenticated: true, role, email }));
+    router.replace("/dashboard");
   };
 
   return (

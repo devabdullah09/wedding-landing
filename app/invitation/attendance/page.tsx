@@ -87,14 +87,7 @@ export default function AttendancePage() {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="w-full bg-[#181818] py-6 px-8 flex items-center justify-between text-white text-xs mt-12" style={{ fontFamily: 'Montserrat', fontWeight: 400 }}>
-        <div>
-          © 2025 Anna Kowalska & Piotr Nowak<br />Powered by Vesello
-        </div>
-        <button className="border border-white rounded px-4 py-1 text-xs" style={{ background: 'none' }}>LOGIN</button>
-      </footer>
+   
     </div>
   );
 } 

@@ -29,6 +29,7 @@ const Footer: React.FC = () => {
             Powered by Vesello
           </div>
         </div>
+        
         <button
           style={{
             background: 'transparent',
