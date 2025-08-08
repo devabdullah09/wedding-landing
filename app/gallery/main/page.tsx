@@ -2,9 +2,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useRef, useEffect } from 'react';
+import { fetchGalleryFiles } from '@/lib/gallery';
 
 export default function MainGalleryPage() {
   const [showCopiedPopup, setShowCopiedPopup] = useState(false);
+  const [weddingDayCount, setWeddingDayCount] = useState(0);
+  const [partyDayCount, setPartyDayCount] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleCopyLink = () => {
@@ -17,6 +20,25 @@ export default function MainGalleryPage() {
       setShowCopiedPopup(false);
     }, 5000);
   };
+
+  // Load gallery counts on component mount
+  useEffect(() => {
+    const loadGalleryCounts = async () => {
+      try {
+        // Get wedding day photo count
+        const weddingPhotos = await fetchGalleryFiles('wedding-day', 'photos');
+        setWeddingDayCount(weddingPhotos.count);
+        
+        // Get party day photo count
+        const partyPhotos = await fetchGalleryFiles('party-day', 'photos');
+        setPartyDayCount(partyPhotos.count);
+      } catch (error) {
+        console.error('Error loading gallery counts:', error);
+      }
+    };
+
+    loadGalleryCounts();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -65,7 +87,14 @@ export default function MainGalleryPage() {
                   <button className="border border-white text-white rounded px-6 py-1 bg-transparent hover:bg-white hover:text-[#C18037] transition" style={{ fontFamily: 'Montserrat', fontWeight: 600, fontSize: '16px', letterSpacing: '0.01em', lineHeight: 1.4 }}>Upload</button>
                 </div>
               </Link>
-              <div className="text-center mt-2" style={{ fontFamily: 'Montserrat', fontWeight: 400, fontSize: '16px', color: '#08080A', letterSpacing: '0.01em', lineHeight: 1.4 }}>Wedding Day</div>
+              <div className="text-center mt-2" style={{ fontFamily: 'Montserrat', fontWeight: 400, fontSize: '16px', color: '#08080A', letterSpacing: '0.01em', lineHeight: 1.4 }}>
+                Wedding Day
+                {weddingDayCount > 0 && (
+                  <div className="text-sm text-[#C18037] mt-1">
+                    {weddingDayCount} photo{weddingDayCount !== 1 ? 's' : ''} uploaded
+                  </div>
+                )}
+              </div>
             </div>
             {/* Party Day */}
             <div className="flex flex-col items-center">
@@ -78,7 +107,14 @@ export default function MainGalleryPage() {
                     Upload</button>
                 </div>
               </Link>
-              <div className="text-center mt-2" style={{ fontFamily: 'Montserrat', fontWeight: 400, fontSize: '16px', color: '#08080A', letterSpacing: '0.01em', lineHeight: 1.4 }}>Party Day</div>
+              <div className="text-center mt-2" style={{ fontFamily: 'Montserrat', fontWeight: 400, fontSize: '16px', color: '#08080A', letterSpacing: '0.01em', lineHeight: 1.4 }}>
+                Party Day
+                {partyDayCount > 0 && (
+                  <div className="text-sm text-[#C18037] mt-1">
+                    {partyDayCount} photo{partyDayCount !== 1 ? 's' : ''} uploaded
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

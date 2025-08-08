@@ -5,25 +5,35 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { signInUser } from "@/lib/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       setError("Please enter both email and password.");
       return;
     }
+    
     setError("");
-    // Mock authentication: Super Admin if email is admin@vesello.com, else Organizer
-    const role = email === "admin@vesello.com" ? "superadmin" : "organizer";
-    localStorage.setItem("vesello_auth", JSON.stringify({ isAuthenticated: true, role, email }));
-    router.replace("/dashboard");
+    setLoading(true);
+    
+    try {
+      await signInUser(email, password);
+      router.replace("/dashboard");
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setError(error.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -96,9 +106,10 @@ export default function LoginPage() {
               {error && <div className="text-red-500 text-sm text-center">{error}</div>}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#E5B574] via-[#D59C58] to-[#C18037] text-white font-semibold text-base py-2 rounded-md shadow-md hover:from-[#D59C58] hover:to-[#E5B574] transition-colors"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-[#E5B574] via-[#D59C58] to-[#C18037] text-white font-semibold text-base py-2 rounded-md shadow-md hover:from-[#D59C58] hover:to-[#E5B574] transition-colors disabled:opacity-50"
               >
-                Login now
+                {loading ? "Logging in..." : "Login now"}
               </Button>
             </form>
           </CardContent>

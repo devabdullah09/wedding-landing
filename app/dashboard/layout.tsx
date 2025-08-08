@@ -1,30 +1,34 @@
 "use client";
-import { useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import { ProtectedRoute } from "@/components/protected-route";
+import { useAuth } from "@/components/auth-provider";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<{ isAuthenticated: boolean; role: "superadmin" | "organizer"; email: string } | null>(null);
+  const { userProfile, loading } = useAuth();
 
-  useEffect(() => {
-    const auth = localStorage.getItem("vesello_auth");
-    if (auth) {
-      const parsed = JSON.parse(auth);
-      setUser(parsed);
-    }
-  }, []);
-
-  if (!user) return null;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C18037] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-white">
-      <DashboardHeader />
-      <div className="flex min-h-[calc(100vh-5rem)] bg-white">
-        <Sidebar role={user.role} />
-        <main className="flex-1 p-12 bg-white min-h-full relative">
-          {children}
-        </main>
+    <ProtectedRoute requiredRole="organizer">
+      <div className="min-h-screen bg-white">
+        <DashboardHeader />
+        <div className="flex min-h-[calc(100vh-5rem)] bg-white">
+          <Sidebar role={userProfile?.role || 'organizer'} />
+          <main className="flex-1 p-12 bg-white min-h-full relative">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 } 

@@ -1,9 +1,10 @@
 'use client';
 import Image from 'next/image';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import UploadingOverlay from '@/components/gallery/UploadingOverlay';
 import UploadSuccessOverlay from '@/components/gallery/UploadSuccessOverlay';
 import { useRouter } from 'next/navigation';
+import { uploadFiles, fetchGalleryFiles, getInitialImages, getInitialVideos, type GalleryFile } from '@/lib/gallery';
 
 const downloadIcon = (
   <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline ml-1 text-[#C18037]">
@@ -11,21 +12,11 @@ const downloadIcon = (
   </svg>
 );
 
-const initialImages = [
-  '/images/Gallery/maingallery.jpg',
-  '/images/Gallery/afterPArty.png',
-  '/images/Gallery/weddingDay.png',
-];
-const initialVideos = [
-  // Use a placeholder video thumbnail or a real video file if available
-  { src: '/videos/sample1.mp4', thumb: '/images/placeholder.jpg' },
-  { src: '/videos/sample2.mp4', thumb: '/images/placeholder.jpg' },
-];
-
 export default function WeddingDayGallery() {
   const [tab, setTab] = useState<'photos' | 'videos'>('photos');
-  const [images, setImages] = useState(initialImages);
-  const [videos, setVideos] = useState(initialVideos);
+  const [images, setImages] = useState<string[]>([]);
+  const [videos, setVideos] = useState<{ src: string; thumb: string }[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<GalleryFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Overlay state
@@ -35,33 +26,63 @@ export default function WeddingDayGallery() {
   const [showSuccess, setShowSuccess] = useState(false);
   const router = useRouter();
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Load existing images on component mount
+  useEffect(() => {
+    loadGalleryFiles();
+  }, [tab]);
+
+  const loadGalleryFiles = async () => {
+    try {
+      const response = await fetchGalleryFiles('wedding-day', tab);
+      if (response.success) {
+        setUploadedFiles(response.files);
+        if (tab === 'photos') {
+          setImages([...getInitialImages(), ...response.files.map(f => f.url)]);
+        } else {
+          setVideos([...getInitialVideos(), ...response.files.map(f => ({ src: f.url, thumb: '/images/placeholder.jpg' }))]);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading gallery files:', error);
+      // Fallback to initial images
+      if (tab === 'photos') {
+        setImages(getInitialImages());
+      } else {
+        setVideos(getInitialVideos());
+      }
+    }
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
+    
     setUploadTotal(files.length);
-    setUploadProgress(1);
+    setUploadProgress(0);
     setUploading(true);
-    // Simulate upload progress
-    let idx = 1;
-    const interval = setInterval(() => {
-      setUploadProgress(idx);
-      if (idx === files.length) {
-        clearInterval(interval);
+
+    try {
+      // Upload files to server
+      const response = await uploadFiles(files, 'wedding-day', tab);
+      
+      if (response.success) {
+        setUploadProgress(files.length);
+        
+        // Reload gallery files after successful upload
+        await loadGalleryFiles();
+        
         setTimeout(() => {
           setUploading(false);
           setShowSuccess(true);
-          // Actually add images/videos to gallery
-          if (tab === 'photos') {
-            const newImages = Array.from(files).map(file => URL.createObjectURL(file));
-            setImages(prev => [...newImages, ...prev]);
-          } else {
-            const newVideos = Array.from(files).map(file => ({ src: URL.createObjectURL(file), thumb: '/images/placeholder.jpg' }));
-            setVideos(prev => [...newVideos, ...prev]);
-          }
         }, 500);
+      } else {
+        throw new Error('Upload failed');
       }
-      idx++;
-    }, 600);
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploading(false);
+      alert('Upload failed. Please try again.');
+    }
   };
 
   return (
