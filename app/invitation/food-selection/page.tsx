@@ -1,25 +1,64 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useInvitation } from '@/components/invitation-context';
 
-const guests = [
-  { name: 'GREG SMITH' },
-  { name: 'ANETA STING' },
-];
 const options = ['Regular', 'Vegetarian', 'Vegan'];
 
 export default function FoodSelectionPage() {
-  const [selections, setSelections] = useState(['Regular', 'Regular']);
+  const { state, dispatch } = useInvitation();
+  const [selections, setSelections] = useState<{ [guestName: string]: 'Regular' | 'Vegetarian' | 'Vegan' }>({});
   const router = useRouter();
 
-  const handleSelect = (guestIdx: number, option: string) => {
-    setSelections(prev => prev.map((v, i) => (i === guestIdx ? option : v)));
+  // Memoize guest names to prevent infinite loops
+  const guests = useMemo(() => {
+    const names = [state.mainGuest.name, ...state.additionalGuests.map(g => g.name)];
+    return names.filter(name => name.trim() !== '');
+  }, [state.mainGuest.name, state.additionalGuests]);
+
+  // Initialize selections state when guests change
+  useEffect(() => {
+    const initialSelections: { [guestName: string]: 'Regular' | 'Vegetarian' | 'Vegan' } = {};
+    guests.forEach(guestName => {
+      if (guestName.trim()) {
+        initialSelections[guestName] = state.foodPreferences[guestName] || 'Regular';
+      }
+    });
+    setSelections(initialSelections);
+  }, [guests, state.foodPreferences]);
+
+  const handleSelect = (guestName: string, option: 'Regular' | 'Vegetarian' | 'Vegan') => {
+    const newSelections = { ...selections, [guestName]: option };
+    setSelections(newSelections);
+    dispatch({ type: 'SET_FOOD_PREFERENCES', payload: newSelections });
   };
 
   const handleContinue = () => {
+    // Save food preferences to context
+    dispatch({ type: 'SET_FOOD_PREFERENCES', payload: selections });
     router.push('/invitation/accommodation');
   };
+
+  if (guests.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center bg-[#fff]">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-4">No guests found</h1>
+          <p className="text-gray-600">Please go back and add guest information first.</p>
+          <button
+            onClick={() => router.push('/invitation')}
+            className="mt-4 bg-[#08080A] text-white px-6 py-2 rounded-md hover:bg-[#C18037] transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // For now, we'll show only the first two guests as in the original design
+  const displayGuests = guests.slice(0, 2);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#fff]" style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}>
@@ -44,14 +83,14 @@ export default function FoodSelectionPage() {
             <div className="w-full max-w-[1200px] mx-auto grid grid-cols-2 gap-x-4 gap-y-8 mb-12">
               {/* Left guest: left aligned */}
               <div className="flex flex-col w-full items-start">
-                <div className="text-sm md:text-base text-[#08080A] uppercase mb-2" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guests[0].name}</div>
+                <div className="text-sm md:text-base text-[#08080A] uppercase mb-2" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{displayGuests[0]}</div>
                 <div className="flex flex-col gap-4 w-full">
                   {options.map(option => (
                     <button
                       key={option}
-                      className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none text-left pl-6 ${selections[0] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
+                      className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none text-left pl-6 ${selections[displayGuests[0]] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
                       style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
-                      onClick={() => handleSelect(0, option)}
+                      onClick={() => handleSelect(displayGuests[0], option)}
                     >
                       {option}
                     </button>
@@ -59,21 +98,23 @@ export default function FoodSelectionPage() {
                 </div>
               </div>
               {/* Right guest: right aligned */}
-              <div className="flex flex-col w-full items-end">
-                <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-right" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guests[1].name}</div>
-                <div className="flex flex-col gap-4 w-full">
-                  {options.map(option => (
-                    <button
-                      key={option}
-                      className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none text-right pr-6 ${selections[1] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
-                      style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
-                      onClick={() => handleSelect(1, option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
+              {displayGuests[1] && (
+                <div className="flex flex-col w-full items-end">
+                  <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-right" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{displayGuests[1]}</div>
+                  <div className="flex flex-col gap-4 w-full">
+                    {options.map(option => (
+                      <button
+                        key={option}
+                        className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none text-right pr-6 ${selections[displayGuests[1]] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
+                        style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
+                        onClick={() => handleSelect(displayGuests[1], option)}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             {/* Continue Button */}
             <button

@@ -1,28 +1,68 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
-const guests = [
-  { name: 'GREG SMITH' },
-  { name: 'ANETA STING' },
-];
+import { useInvitation } from '@/components/invitation-context';
 
 export default function NotePage() {
-  const [notes, setNotes] = useState(['', '']);
+  const { state, dispatch } = useInvitation();
+  const [notes, setNotes] = useState<{ [guestName: string]: string }>({});
   const router = useRouter();
 
-  const handleNoteChange = (idx: number, value: string) => {
-    setNotes(prev => prev.map((v, i) => (i === idx ? value : v)));
+  // Memoize guest names to prevent infinite loops
+  const guests = useMemo(() => {
+    const names = [state.mainGuest.name, ...state.additionalGuests.map(g => g.name)];
+    return names.filter(name => name.trim() !== '');
+  }, [state.mainGuest.name, state.additionalGuests]);
+
+  // Initialize notes state when guests change
+  useEffect(() => {
+    const initialNotes: { [guestName: string]: string } = {};
+    guests.forEach(guestName => {
+      if (guestName.trim()) {
+        initialNotes[guestName] = state.notes[guestName] || '';
+      }
+    });
+    setNotes(initialNotes);
+  }, [guests, state.notes]);
+
+  const handleNoteChange = (guestName: string, value: string) => {
+    const newNotes = { ...notes, [guestName]: value };
+    setNotes(newNotes);
+    dispatch({ type: 'SET_NOTES', payload: newNotes });
   };
 
   const handleContinue = () => {
-    // Next step placeholder
+    // Save notes data to context
+    dispatch({ type: 'SET_NOTES', payload: notes });
     router.push('/invitation/confirmation');
   };
+
   const handleSkip = () => {
+    // Save notes data to context
+    dispatch({ type: 'SET_NOTES', payload: notes });
     router.push('/invitation/confirmation');
   };
+
+  if (guests.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center bg-[#fff]">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-4">No guests found</h1>
+          <p className="text-gray-600">Please go back and add guest information first.</p>
+          <button
+            onClick={() => router.push('/invitation')}
+            className="mt-4 bg-[#08080A] text-white px-6 py-2 rounded-md hover:bg-[#C18037] transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // For now, we'll show only the first two guests as in the original design
+  const displayGuests = guests.slice(0, 2);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#fff]" style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}>
@@ -43,19 +83,20 @@ export default function NotePage() {
                 <div className="w-24 h-[2px] bg-[#B7B7B7] mx-auto my-4" />
               </div>
               <div className="text-base md:text-lg mt-2 mb-8 tracking-normal" style={{ color: '#08080A', fontWeight: 400, fontFamily: 'Montserrat', letterSpacing: '0.01em' }}>
-                Aneta Sting:
+                {displayGuests[0]}:
               </div>
             </div>
             {/* Guest Notes */}
             <div className="w-full max-w-[900px] mx-auto grid grid-cols-2 gap-x-6 gap-y-6 mb-12 mt-2">
-              {guests.map((guest, idx) => (
-                <div key={guest.name} className="flex flex-col items-center w-full">
-                  <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-left w-full" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guest.name}</div>
+              {displayGuests.map((guestName) => (
+                <div key={guestName} className="flex flex-col items-center w-full">
+                  <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-left w-full" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guestName}</div>
                   <textarea
                     className="w-full h-32 rounded-md border border-[#B7B7B7] bg-[#F5F5F5] p-4 text-base focus:outline-none focus:border-[#E5B574] resize-none"
                     style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
-                    value={notes[idx]}
-                    onChange={e => handleNoteChange(idx, e.target.value)}
+                    value={notes[guestName] || ''}
+                    onChange={e => handleNoteChange(guestName, e.target.value)}
+                    placeholder="Write your message here..."
                   />
                 </div>
               ))}

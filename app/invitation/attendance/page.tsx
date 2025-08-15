@@ -1,28 +1,59 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
-const guests = [
-  { name: 'GREG SMITH' },
-  { name: 'ANETA STING' },
-  { name: 'MARRY JANE' },
-  { name: 'TEO STING' },
-];
+import { useInvitation } from '@/components/invitation-context';
 
 export default function AttendancePage() {
-  const [attendance, setAttendance] = useState([
-    'will', 'will', 'will', 'will',
-  ]);
+  const { state, dispatch } = useInvitation();
+  const [attendance, setAttendance] = useState<{ [guestName: string]: 'will' | 'cant' }>({});
   const router = useRouter();
 
-  const handleSelect = (idx: number, value: 'will' | 'cant') => {
-    setAttendance(prev => prev.map((v, i) => (i === idx ? value : v)));
+  // Memoize guest names to prevent infinite loops
+  const guests = useMemo(() => {
+    const names = [state.mainGuest.name, ...state.additionalGuests.map(g => g.name)];
+    return names.filter(name => name.trim() !== '');
+  }, [state.mainGuest.name, state.additionalGuests]);
+
+  // Initialize attendance state when guests change
+  useEffect(() => {
+    const initialAttendance: { [guestName: string]: 'will' | 'cant' } = {};
+    guests.forEach(guestName => {
+      if (guestName.trim()) {
+        initialAttendance[guestName] = state.weddingDayAttendance[guestName] || 'will';
+      }
+    });
+    setAttendance(initialAttendance);
+  }, [guests, state.weddingDayAttendance]);
+
+  const handleSelect = (guestName: string, value: 'will' | 'cant') => {
+    const newAttendance = { ...attendance, [guestName]: value };
+    setAttendance(newAttendance);
+    dispatch({ type: 'SET_WEDDING_ATTENDANCE', payload: newAttendance });
   };
 
   const handleContinue = () => {
+    // Save attendance data to context
+    dispatch({ type: 'SET_WEDDING_ATTENDANCE', payload: attendance });
     router.push('/invitation/after-party');
   };
+
+  if (guests.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center bg-[#fff]">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-4">No guests found</h1>
+          <p className="text-gray-600">Please go back and add guest information first.</p>
+          <button
+            onClick={() => router.push('/invitation')}
+            className="mt-4 bg-[#08080A] text-white px-6 py-2 rounded-md hover:bg-[#C18037] transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#fff]" style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}>
@@ -53,22 +84,22 @@ export default function AttendancePage() {
             {/* Guest List Grid */}
             <div className="w-full grid grid-cols-3 gap-x-6 gap-y-6 mb-12 mt-2">
              
-              {guests.map((guest, idx) => (
-                <React.Fragment key={guest.name}>
+              {guests.map((guestName) => (
+                <React.Fragment key={guestName}>
                   <div className="flex items-center justify-end pr-2">
-                    <span className="font-semibold text-sm md:text-base text-[#08080A] uppercase" style={{ fontFamily: 'Montserrat', minWidth: 140, letterSpacing: '0.5px' }}>{guest.name}</span>
+                    <span className="font-semibold text-sm md:text-base text-[#08080A] uppercase" style={{ fontFamily: 'Montserrat', minWidth: 140, letterSpacing: '0.5px' }}>{guestName}</span>
                   </div>
                   <button
-                    className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${attendance[idx] === 'will' ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
+                    className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${attendance[guestName] === 'will' ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
                     style={{ fontFamily: 'Montserrat' }}
-                    onClick={() => handleSelect(idx, 'will')}
+                    onClick={() => handleSelect(guestName, 'will')}
                   >
                     Will Attend
                   </button>
                   <button
-                    className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${attendance[idx] === 'cant' ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
+                    className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${attendance[guestName] === 'cant' ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
                     style={{ fontFamily: 'Montserrat' }}
-                    onClick={() => handleSelect(idx, 'cant')}
+                    onClick={() => handleSelect(guestName, 'cant')}
                   >
                     Can't Attend
                   </button>

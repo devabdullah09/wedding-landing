@@ -1,24 +1,62 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
-const guests = [
-  { name: 'GREG SMITH' },
-  { name: 'ANETA STING' },
-];
+import { useInvitation } from '@/components/invitation-context';
 
 export default function AccommodationPage() {
-  const [accommodation, setAccommodation] = useState(['No', 'No']);
+  const { state, dispatch } = useInvitation();
+  const [accommodation, setAccommodation] = useState<{ [guestName: string]: 'Yes' | 'No' }>({});
   const router = useRouter();
 
-  const handleSelect = (guestIdx: number, value: 'Yes' | 'No') => {
-    setAccommodation(prev => prev.map((v, i) => (i === guestIdx ? value : v)));
+  // Memoize guest names to prevent infinite loops
+  const guests = useMemo(() => {
+    const names = [state.mainGuest.name, ...state.additionalGuests.map(g => g.name)];
+    return names.filter(name => name.trim() !== '');
+  }, [state.mainGuest.name, state.additionalGuests]);
+
+  // Initialize accommodation state when guests change
+  useEffect(() => {
+    const initialAccommodation: { [guestName: string]: 'Yes' | 'No' } = {};
+    guests.forEach(guestName => {
+      if (guestName.trim()) {
+        initialAccommodation[guestName] = state.accommodationNeeded[guestName] || 'No';
+      }
+    });
+    setAccommodation(initialAccommodation);
+  }, [guests, state.accommodationNeeded]);
+
+  const handleSelect = (guestName: string, value: 'Yes' | 'No') => {
+    const newAccommodation = { ...accommodation, [guestName]: value };
+    setAccommodation(newAccommodation);
+    dispatch({ type: 'SET_ACCOMMODATION_NEEDED', payload: newAccommodation });
   };
 
   const handleContinue = () => {
+    // Save accommodation data to context
+    dispatch({ type: 'SET_ACCOMMODATION_NEEDED', payload: accommodation });
     router.push('/invitation/transportation');
   };
+
+  if (guests.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center bg-[#fff]">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold mb-4">No guests found</h1>
+          <p className="text-gray-600">Please go back and add guest information first.</p>
+          <button
+            onClick={() => router.push('/invitation')}
+            className="mt-4 bg-[#08080A] text-white px-6 py-2 rounded-md hover:bg-[#C18037] transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // For now, we'll show only the first two guests as in the original design
+  const displayGuests = guests.slice(0, 2);
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#fff]" style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}>
@@ -43,14 +81,14 @@ export default function AccommodationPage() {
             <div className="w-full max-w-[1200px] mx-auto grid grid-cols-2 gap-x-4 gap-y-8 mb-12">
               {/* Left guest: left aligned */}
               <div className="flex flex-col w-full items-start">
-                <div className="text-sm md:text-base text-[#08080A] uppercase mb-2" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guests[0].name}</div>
+                <div className="text-sm md:text-base text-[#08080A] uppercase mb-2" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{displayGuests[0]}</div>
                 <div className="flex flex-row gap-4 w-full">
                   {['Yes', 'No'].map(option => (
                     <button
                       key={option}
-                      className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${accommodation[0] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
+                      className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${accommodation[displayGuests[0]] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
                       style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
-                      onClick={() => handleSelect(0, option as 'Yes' | 'No')}
+                      onClick={() => handleSelect(displayGuests[0], option as 'Yes' | 'No')}
                     >
                       {option}
                     </button>
@@ -58,25 +96,27 @@ export default function AccommodationPage() {
                 </div>
               </div>
               {/* Right guest: right aligned */}
-              <div className="flex flex-col w-full items-end">
-                <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-right" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guests[1].name}</div>
-                <div className="flex flex-row gap-4 w-full justify-end">
-                  {['Yes', 'No'].map(option => (
-                    <button
-                      key={option}
-                      className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${accommodation[1] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
-                      style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
-                      onClick={() => handleSelect(1, option as 'Yes' | 'No')}
-                    >
-                      {option}
-                    </button>
-                  ))}
+              {displayGuests[1] && (
+                <div className="flex flex-col w-full items-end">
+                  <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-right" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{displayGuests[1]}</div>
+                  <div className="flex flex-row gap-4 w-full justify-end">
+                    {['Yes', 'No'].map(option => (
+                      <button
+                        key={option}
+                        className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${accommodation[displayGuests[1]] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
+                        style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
+                        onClick={() => handleSelect(displayGuests[1], option as 'Yes' | 'No')}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             {/* Continue Button */}
             <button
-              className="w-full max-w-md bg-[#08080A] text-white py-5 rounded-md text-lg mt-8 hover:bg-[#222] transition-colors focus:outline-none"
+              className="w-full max-w-md bg-[#08080A] text-white py-5 rounded-md font-semibold text-lg mt-8 hover:bg-[#222] transition-colors focus:outline-none"
               style={{ fontFamily: 'Montserrat', marginTop: '5rem'}}
               onClick={handleContinue}
             >

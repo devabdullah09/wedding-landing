@@ -1,31 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
-
-const initialWeddingDayGuests = [
-  { name: "Greg Smith", checked: true },
-  { name: "Aneta Sting", checked: false },
-  { name: "Marry Jane", checked: false },
-  { name: "Teo Sting", checked: false },
-];
-const initialAfterPartyGuests = [
-  { name: "Greg Smith", checked: true },
-  { name: "Aneta Sting", checked: false },
-  { name: "Marry Jane", checked: false },
-  { name: "Teo Sting", checked: false },
-];
+import { useInvitation } from "@/components/invitation-context";
 
 export default function RSVPResponsePage() {
-  const [weddingDayGuests, setWeddingDayGuests] = useState(initialWeddingDayGuests);
-  const [afterPartyGuests, setAfterPartyGuests] = useState(initialAfterPartyGuests);
+  const { state } = useInvitation();
 
-  const handleToggle = (idx: number, type: "wedding" | "after") => {
-    if (type === "wedding") {
-      setWeddingDayGuests(guests => guests.map((g, i) => i === idx ? { ...g, checked: !g.checked } : g));
-    } else {
-      setAfterPartyGuests(guests => guests.map((g, i) => i === idx ? { ...g, checked: !g.checked } : g));
-    }
-  };
+  // Get all guest names from context
+  const allGuestNames = [state.mainGuest.name, ...state.additionalGuests.map(g => g.name)].filter(name => name.trim() !== '');
+
+  // Filter guests who are attending each event
+  const weddingDayGuests = allGuestNames.filter(guestName => 
+    state.weddingDayAttendance[guestName] === 'will'
+  ).map(name => ({ name, checked: true }));
+
+  const afterPartyGuests = allGuestNames.filter(guestName => 
+    state.afterPartyAttendance[guestName] === 'will'
+  ).map(name => ({ name, checked: true }));
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#fff]" style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}>
@@ -41,7 +32,7 @@ export default function RSVPResponsePage() {
           <div className="w-full max-w-[600px] mx-auto flex flex-col items-center mb-8 mt-2 z-10 px-4 sm:px-8 pt-10 sm:pt-16 pb-8">
             <div className="text-center w-full mb-2">
               <span className="text-sm sm:text-base md:text-lg" style={{ color: '#08080A', fontWeight: 400, fontFamily: 'Montserrat', letterSpacing: '0.01em' }}>
-                All Set! Here 's what we sent Grzegorz & Aneta.
+                All Set! Here's what we sent Lucas & Mia.
               </span>
               <div className="w-24 h-[2px] bg-[#B7B7B7] mx-auto my-4" />
               <span className="text-sm sm:text-base md:text-lg" style={{ color: '#08080A', fontWeight: 400, fontFamily: 'Montserrat', letterSpacing: '0.01em' }}>
@@ -54,34 +45,32 @@ export default function RSVPResponsePage() {
               <div className="flex flex-col items-center">
                 <span className="font-semibold text-base sm:text-lg mb-2" style={{ fontFamily: 'Montserrat', color: '#08080A' }}>Wedding Day</span>
                 <div className="flex flex-col items-start">
-                  {weddingDayGuests.map((guest, idx) => (
-                    <label key={guest.name} className="flex items-center text-sm sm:text-base mb-1 cursor-pointer select-none" style={{ fontFamily: 'Montserrat', color: '#08080A' }}>
-                      <input
-                        type="checkbox"
-                        checked={guest.checked}
-                        onChange={() => handleToggle(idx, "wedding")}
-                        className="mr-2 accent-[#08080A] cursor-pointer"
-                      />
-                      {guest.name}
-                    </label>
-                  ))}
+                  {weddingDayGuests.length > 0 ? (
+                    weddingDayGuests.map((guest) => (
+                      <div key={guest.name} className="flex items-center text-sm sm:text-base mb-1" style={{ fontFamily: 'Montserrat', color: '#08080A' }}>
+                        <span className="mr-2">✓</span>
+                        {guest.name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-gray-500 italic">No guests attending</div>
+                  )}
                 </div>
               </div>
               {/* After Day Party */}
               <div className="flex flex-col items-center">
                 <span className="font-semibold text-base sm:text-lg mb-2" style={{ fontFamily: 'Montserrat', color: '#08080A' }}>Wedding After Day Party</span>
                 <div className="flex flex-col items-start">
-                  {afterPartyGuests.map((guest, idx) => (
-                    <label key={guest.name} className="flex items-center text-sm sm:text-base mb-1 cursor-pointer select-none" style={{ fontFamily: 'Montserrat', color: '#08080A' }}>
-                      <input
-                        type="checkbox"
-                        checked={guest.checked}
-                        onChange={() => handleToggle(idx, "after")}
-                        className="mr-2 accent-[#08080A] cursor-pointer"
-                      />
-                      {guest.name}
-                    </label>
-                  ))}
+                  {afterPartyGuests.length > 0 ? (
+                    afterPartyGuests.map((guest) => (
+                      <div key={guest.name} className="flex items-center text-sm sm:text-base mb-1" style={{ fontFamily: 'Montserrat', color: '#08080A' }}>
+                        <span className="mr-2">✓</span>
+                        {guest.name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-gray-500 italic">No guests attending</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -97,7 +86,7 @@ export default function RSVPResponsePage() {
       {/* Footer */}
       <footer className="w-full bg-[#08080A] text-white py-6 px-8 flex flex-col md:flex-row items-center justify-between mt-12">
         <div className="text-xs md:text-sm" style={{ fontFamily: 'Montserrat' }}>
-          © 2025 Anna Kowalska & Piotr Nowak<br />Powered by Vesello
+          © 2025 Lucas & Mia<br />Powered by Vesello
         </div>
         <div className="mt-4 md:mt-0">
           <button className="border border-white rounded px-4 py-1 text-xs hover:bg-white hover:text-[#08080A] transition-colors" style={{ fontFamily: 'Montserrat' }}>

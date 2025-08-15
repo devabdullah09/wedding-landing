@@ -1,350 +1,128 @@
-# Firebase Backend Setup Guide
+# Firebase Setup Guide - Fix Permission Denied Error
 
-This guide will help you set up Firebase as the backend for your wedding landing page application.
+## 🚨 **Current Issue**
 
-## Prerequisites
+You're getting a `PERMISSION_DENIED: Missing or insufficient permissions` error when trying to submit RSVPs.
 
-- Node.js and npm installed
-- Firebase account (free tier is sufficient)
-- Git repository for your project
+## 🔧 **Quick Fix - Enable Firestore**
 
-## Step 1: Create Firebase Project
+### Step 1: Go to Firebase Console
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Click "Create a project" or "Add project"
-3. Enter a project name (e.g., "wedding-landing-app")
-4. Choose whether to enable Google Analytics (optional)
-5. Click "Create project"
+1. Open [Firebase Console](https://console.firebase.google.com/)
+2. Select your project: `vasello-a471e`
 
-## Step 2: Enable Firebase Services
+### Step 2: Enable Firestore Database
 
-### Authentication
+1. In the left sidebar, click **"Firestore Database"**
+2. Click **"Create database"**
+3. Choose **"Start in test mode"** (for development)
+4. Select a location (choose the closest to your users)
+5. Click **"Enable"**
 
-1. In Firebase Console, go to "Authentication" → "Get started"
-2. Click "Sign-in method" tab
-3. Enable "Email/Password" authentication
-4. Click "Save"
+### Step 3: Update Security Rules
 
-### Firestore Database
-
-1. Go to "Firestore Database" → "Create database"
-2. Choose "Start in test mode" (for development)
-3. Select a location close to your users
-4. Click "Done"
-
-### Storage
-
-1. Go to "Storage" → "Get started"
-2. Choose "Start in test mode" (for development)
-3. Select a location close to your users
-4. Click "Done"
-
-## Step 3: Get Firebase Configuration
-
-1. In Firebase Console, go to Project Settings (gear icon)
-2. Scroll down to "Your apps" section
-3. Click the web icon (</>) to add a web app
-4. Register your app with a nickname (e.g., "wedding-landing-web")
-5. Copy the configuration object
-
-## Step 4: Configure Environment Variables
-
-1. Copy `env.example` to `.env.local`
-2. Replace the placeholder values with your Firebase configuration:
-
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_actual_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
-
-## Step 5: Set Up Firestore Security Rules
-
-In Firebase Console, go to Firestore Database → Rules and replace with:
+1. In Firestore Database, click the **"Rules"** tab
+2. Replace the rules with this development-friendly version:
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can read/write their own profile
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Events: organizers can manage their events, superadmins can manage all
-    match /events/{eventId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (
-        resource.data.organizerId == request.auth.uid ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
-      );
-    }
-
-    // Guests: organizers can manage guests for their events
-    match /guests/{guestId} {
-      allow read, write: if request.auth != null && (
-        resource.data.eventId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.eventId ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
-      );
-    }
-
-    // RSVP responses: organizers can read responses for their events
-    match /rsvp_responses/{responseId} {
-      allow read: if request.auth != null && (
-        resource.data.eventId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.eventId ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
-      );
-      allow write: if request.auth != null; // Anyone can submit RSVP
-    }
-
-    // Gallery items: organizers can manage items for their events
-    match /gallery_items/{itemId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (
-        resource.data.eventId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.eventId ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
-      );
+    // Allow all reads and writes for development
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
 ```
 
-## Step 6: Set Up Storage Security Rules
+3. Click **"Publish"**
 
-In Firebase Console, go to Storage → Rules and replace with:
+## 🚨 **Security Warning**
+
+⚠️ **The rules above allow anyone to read/write to your database. Only use for development!**
+
+## 🔒 **Production Security Rules**
+
+For production, use these secure rules:
 
 ```javascript
 rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    // Gallery uploads: anyone can upload, organizers can manage
-    match /gallery/{eventId}/{allPaths=**} {
-      allow read: if request.auth != null;
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users to read/write RSVPs
+    match /invitation_rsvps/{document} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Allow public read access to events
+    match /events/{document} {
+      allow read: if true;
       allow write: if request.auth != null;
     }
-
-    // Event files: organizers can manage their event files
-    match /events/{eventId}/{allPaths=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && (
-        // Check if user is organizer for this event
-        exists(/databases/$(database)/documents/events/$(eventId)) &&
-        get(/databases/$(database)/documents/events/$(eventId)).data.organizerId == request.auth.uid
-      );
-    }
   }
 }
 ```
 
-## Step 7: Create Initial Users
+## 🧪 **Test the Fix**
 
-You'll need to create initial users for testing. You can do this through the Firebase Console or programmatically.
+### Test 1: Check Firestore Connection
 
-### Option 1: Firebase Console
+1. Go to: `http://localhost:3000/api/invitation/test-firebase`
+2. You should see: `"Firebase connection successful"`
 
-1. Go to Authentication → Users
-2. Click "Add user"
-3. Enter email and password
-4. Create at least one superadmin user
+### Test 2: Submit an RSVP
 
-### Option 2: Programmatic Creation
+1. Go through the invitation flow
+2. Try submitting an RSVP
+3. Check if it goes to Firebase or local storage
 
-Create a script to set up initial users:
+### Test 3: Check Dashboard
 
-```typescript
-// scripts/create-users.ts
-import { createUser } from "@/lib/auth";
+1. Go to: `http://localhost:3000/invitation/dashboard`
+2. You should see submitted RSVPs
 
-async function createInitialUsers() {
-  try {
-    // Create superadmin
-    await createUser(
-      "admin@vesello.com",
-      "admin123",
-      "superadmin",
-      "Super Admin"
-    );
+## 🔍 **Alternative Solutions**
 
-    // Create organizer
-    await createUser(
-      "organizer@example.com",
-      "organizer123",
-      "organizer",
-      "Event Organizer"
-    );
+### Option 1: Use Firebase Emulator (Local Development)
 
-    console.log("Initial users created successfully");
-  } catch (error) {
-    console.error("Error creating users:", error);
-  }
-}
+```bash
+# Install Firebase CLI
+npm install -g firebase-tools
 
-createInitialUsers();
+# Login to Firebase
+firebase login
+
+# Initialize Firebase in your project
+firebase init
+
+# Start emulators
+firebase emulators:start
 ```
 
-## Step 8: Test the Setup
+### Option 2: Use Local Storage Only
 
-1. Start your development server:
+The system now has a fallback to local storage, so RSVPs will still be saved temporarily.
 
-   ```bash
-   npm run dev
-   ```
+## 📱 **Current Status**
 
-2. Navigate to `/login` and try logging in with the credentials you created
+- ✅ **Skip Button Added** - You can now continue to the next page
+- ✅ **Local Storage Fallback** - RSVPs are saved locally if Firebase fails
+- ✅ **Better Error Handling** - Clear error messages about what's wrong
+- ⚠️ **Firebase Permissions** - Need to be configured in Firebase Console
 
-3. Check the Firebase Console to see if authentication and data are working
+## 🎯 **Next Steps**
 
-## Step 9: Development with Firebase Emulators (Optional)
+1. **Use the Skip Button** to continue testing the flow
+2. **Fix Firebase permissions** using the steps above
+3. **Test RSVP submission** once Firestore is enabled
+4. **Check the dashboard** to see submitted RSVPs
 
-For local development without affecting production data:
+## 🆘 **Still Having Issues?**
 
-1. Install Firebase CLI:
+If you continue to have problems:
 
-   ```bash
-   npm install -g firebase-tools
-   ```
-
-2. Login to Firebase:
-
-   ```bash
-   firebase login
-   ```
-
-3. Initialize Firebase in your project:
-
-   ```bash
-   firebase init emulators
-   ```
-
-4. Start emulators:
-
-   ```bash
-   firebase emulators:start
-   ```
-
-5. Update your `.env.local` to use emulators:
-   ```env
-   NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
-   NEXT_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_HOST=localhost:8080
-   NEXT_PUBLIC_FIREBASE_STORAGE_EMULATOR_HOST=localhost:9199
-   ```
-
-## Database Schema
-
-Your Firestore database will have these collections:
-
-### users
-
-- `uid`: string (Firebase Auth UID)
-- `email`: string
-- `displayName`: string
-- `role`: 'superadmin' | 'organizer' | 'guest'
-- `eventId`: string (for organizers)
-- `createdAt`: timestamp
-- `lastLogin`: timestamp
-
-### events
-
-- `id`: string (auto-generated)
-- `title`: string
-- `coupleNames`: string
-- `date`: timestamp
-- `venue`: string
-- `description`: string
-- `organizerId`: string
-- `isActive`: boolean
-- `settings`: object
-- `createdAt`: timestamp
-- `updatedAt`: timestamp
-
-### guests
-
-- `id`: string (auto-generated)
-- `eventId`: string
-- `name`: string
-- `surname`: string
-- `email`: string
-- `phone`: string
-- `isChild`: boolean
-- `age`: string
-- `rsvpStatus`: string
-- `plusOnes`: array
-- `dietaryRestrictions`: array
-- `notes`: string
-- `createdAt`: timestamp
-- `updatedAt`: timestamp
-
-### rsvp_responses
-
-- `id`: string (auto-generated)
-- `eventId`: string
-- `mainGuestId`: string
-- `response`: string
-- `guestCount`: number
-- `dietaryRestrictions`: array
-- `notes`: string
-- `submittedAt`: timestamp
-
-### gallery_items
-
-- `id`: string (auto-generated)
-- `eventId`: string
-- `uploadedBy`: string
-- `fileName`: string
-- `fileUrl`: string
-- `fileType`: string
-- `isApproved`: boolean
-- `uploadedAt`: timestamp
-- `tags`: array
-
-## Next Steps
-
-1. **Implement Event Management**: Create forms to add/edit events
-2. **RSVP System**: Connect the invitation forms to Firebase
-3. **Gallery Upload**: Implement file upload functionality
-4. **Dashboard Analytics**: Create real-time statistics
-5. **QR Code Generation**: Add QR code functionality for invitations
-6. **Email Notifications**: Set up Firebase Functions for email sending
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Authentication not working**: Check if Firebase Auth is enabled and rules are correct
-2. **Database access denied**: Verify Firestore security rules
-3. **File upload fails**: Check Storage security rules and bucket permissions
-4. **Environment variables not loading**: Ensure `.env.local` is in the root directory
-
-### Debug Mode
-
-Enable debug logging by adding to your Firebase config:
-
-```typescript
-// lib/firebase.ts
-if (process.env.NODE_ENV === "development") {
-  console.log("Firebase config:", firebaseConfig);
-}
-```
-
-## Security Best Practices
-
-1. **Never expose Firebase admin keys in client-side code**
-2. **Use Firebase Functions for sensitive operations**
-3. **Implement proper validation on both client and server**
-4. **Regularly review and update security rules**
-5. **Monitor Firebase usage and costs**
-
-## Deployment
-
-When deploying to production:
-
-1. Update security rules to be more restrictive
-2. Set up proper authentication methods
-3. Configure custom domains if needed
-4. Set up monitoring and alerts
-5. Consider Firebase Functions for server-side operations
-
-For more information, refer to the [Firebase Documentation](https://firebase.google.com/docs).
+1. Check Firebase Console for any error messages
+2. Verify your Firebase project ID matches `vasello-a471e`
+3. Ensure Firestore is enabled in the correct region
+4. Check if there are any billing issues with your Firebase project

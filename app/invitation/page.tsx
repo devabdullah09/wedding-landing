@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useInvitation } from "@/components/invitation-context";
 
 const childAges = [
   "1 Year Old",
@@ -18,6 +19,7 @@ const childAges = [
 ];
 
 export default function InvitationReplyPage() {
+  const { state, dispatch } = useInvitation();
   const [mainGuest, setMainGuest] = useState({ name: "", surname: "" });
   const [guests, setGuests] = useState([
     { name: "", surname: "", isChild: true, age: childAges[1] },
@@ -26,29 +28,50 @@ export default function InvitationReplyPage() {
   ]);
   const router = useRouter();
 
+  // Load existing data from context on component mount
+  useEffect(() => {
+    if (state.mainGuest.name || state.mainGuest.surname) {
+      setMainGuest(state.mainGuest);
+    }
+    if (state.additionalGuests.length > 0) {
+      setGuests(state.additionalGuests);
+    }
+  }, [state.mainGuest, state.additionalGuests]);
+
   const handleMainGuestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMainGuest({ ...mainGuest, [e.target.name]: e.target.value });
+    const updatedGuest = { ...mainGuest, [e.target.name]: e.target.value };
+    setMainGuest(updatedGuest);
+    dispatch({ type: 'SET_MAIN_GUEST', payload: updatedGuest });
   };
 
   const handleGuestChange = (idx: number, field: string, value: string | boolean) => {
-    setGuests((prev) =>
-      prev.map((g, i) =>
-        i === idx ? { ...g, [field]: value } : g
-      )
+    const updatedGuests = guests.map((g, i) =>
+      i === idx ? { ...g, [field]: value } : g
     );
+    setGuests(updatedGuests);
+    dispatch({ type: 'SET_ADDITIONAL_GUESTS', payload: updatedGuests });
   };
 
   const handleAddGuest = () => {
-    setGuests([...guests, { name: "", surname: "", isChild: false, age: "" }]);
+    const newGuests = [...guests, { name: "", surname: "", isChild: false, age: "" }];
+    setGuests(newGuests);
+    dispatch({ type: 'SET_ADDITIONAL_GUESTS', payload: newGuests });
   };
 
   const handleRemoveGuest = (idx: number) => {
-    setGuests(guests.filter((_, i) => i !== idx));
+    const newGuests = guests.filter((_, i) => i !== idx);
+    setGuests(newGuests);
+    dispatch({ type: 'SET_ADDITIONAL_GUESTS', payload: newGuests });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: handle form submission
+    
+    // Save current state to context
+    dispatch({ type: 'SET_MAIN_GUEST', payload: mainGuest });
+    dispatch({ type: 'SET_ADDITIONAL_GUESTS', payload: guests });
+    
+    // Navigate to next step
     router.push("/invitation/attendance");
   };
 

@@ -20,15 +20,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <ProtectedRoute requiredRole="organizer">
-      <div className="min-h-screen bg-white">
-        <DashboardHeader />
-        <div className="flex min-h-[calc(100vh-5rem)] bg-white">
+    <div className="min-h-screen bg-white">
+      <DashboardHeader />
+      <div className="flex min-h-[calc(100vh-5rem)] bg-white">
           <Sidebar role={userProfile?.role || 'organizer'} />
-          <main className="flex-1 p-12 bg-white min-h-full relative">
-            {children}
-          </main>
-        </div>
+        <main className="flex-1 p-12 bg-white min-h-full relative">
+          {children}
+        </main>
       </div>
+    </div>
     </ProtectedRoute>
   );
 } 
