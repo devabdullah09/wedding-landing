@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import UploadingOverlay from '@/components/gallery/UploadingOverlay';
 import UploadSuccessOverlay from '@/components/gallery/UploadSuccessOverlay';
 import { useRouter } from 'next/navigation';
-import { uploadFiles, fetchGalleryFiles, getInitialImages, getInitialVideos, type GalleryFile } from '@/lib/gallery';
+import { uploadFiles, fetchGalleryFiles, getInitialImages, getInitialVideos, type GalleryFile, getCdnUrl } from '@/lib/gallery';
 
 const downloadIcon = (
   <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="inline ml-1 text-[#C18037]">
@@ -37,9 +37,16 @@ export default function PartyDayGallery() {
       if (response.success) {
         setUploadedFiles(response.files);
         if (tab === 'photos') {
-          setImages([...getInitialImages(), ...response.files.map(f => f.url)]);
+          // Combine initial images with uploaded files using CDN URLs
+          const uploadedImageUrls = response.files.map(f => f.cdnUrl || f.url);
+          setImages([...getInitialImages(), ...uploadedImageUrls]);
         } else {
-          setVideos([...getInitialVideos(), ...response.files.map(f => ({ src: f.url, thumb: '/images/placeholder.jpg' }))]);
+          // For videos, use CDN URLs if available
+          const uploadedVideoUrls = response.files.map(f => ({
+            src: f.cdnUrl || f.url,
+            thumb: '/images/placeholder.jpg'
+          }));
+          setVideos([...getInitialVideos(), ...uploadedVideoUrls]);
         }
       }
     } catch (error) {
@@ -62,7 +69,7 @@ export default function PartyDayGallery() {
     setUploading(true);
 
     try {
-      // Upload files to server
+      // Upload files to server (which now uploads to Bunny.net)
       const response = await uploadFiles(files, 'party-day', tab);
       
       if (response.success) {

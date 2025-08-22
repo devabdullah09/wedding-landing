@@ -77,13 +77,10 @@ export default function AttendancePage() {
               <div className="text-base md:text-lg mb-12 tracking-normal" style={{ color: '#08080A', fontWeight: 400, fontFamily: 'Montserrat', letterSpacing: '0.01em' }}>
                 Sunday, May 24, 2026
               </div>
-            
-            
             </div>
 
             {/* Guest List Grid */}
-            <div className="w-full grid grid-cols-3 gap-x-6 gap-y-6 mb-12 mt-2">
-             
+            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-6 mb-12 mt-2">
               {guests.map((guestName) => (
                 <React.Fragment key={guestName}>
                   <div className="flex items-center justify-end pr-2">

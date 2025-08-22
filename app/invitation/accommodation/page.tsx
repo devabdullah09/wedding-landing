@@ -55,9 +55,6 @@ export default function AccommodationPage() {
     );
   }
 
-  // For now, we'll show only the first two guests as in the original design
-  const displayGuests = guests.slice(0, 2);
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#fff]" style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}>
       <div className="flex flex-col items-center justify-center flex-1 py-12">
@@ -78,41 +75,24 @@ export default function AccommodationPage() {
               </div>
             </div>
             {/* Guest Accommodation Selection */}
-            <div className="w-full max-w-[1200px] mx-auto grid grid-cols-2 gap-x-4 gap-y-8 mb-12">
-              {/* Left guest: left aligned */}
-              <div className="flex flex-col w-full items-start">
-                <div className="text-sm md:text-base text-[#08080A] uppercase mb-2" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{displayGuests[0]}</div>
-                <div className="flex flex-row gap-4 w-full">
-                  {['Yes', 'No'].map(option => (
-                    <button
-                      key={option}
-                      className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${accommodation[displayGuests[0]] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
-                      style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
-                      onClick={() => handleSelect(displayGuests[0], option as 'Yes' | 'No')}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* Right guest: right aligned */}
-              {displayGuests[1] && (
-                <div className="flex flex-col w-full items-end">
-                  <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-right" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{displayGuests[1]}</div>
-                  <div className="flex flex-row gap-4 w-full justify-end">
+            <div className="w-full max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-8 mb-12">
+              {guests.map((guestName, idx) => (
+                <div key={guestName} className={`flex flex-col w-full items-${idx % 2 === 0 ? 'start' : 'end'}`}>
+                  <div className={`text-sm md:text-base text-[#08080A] uppercase mb-2 ${idx % 2 === 0 ? '' : 'text-right'}`} style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guestName}</div>
+                  <div className={`flex flex-row gap-4 w-full ${idx % 2 === 0 ? '' : 'justify-end'}`}>
                     {['Yes', 'No'].map(option => (
                       <button
                         key={option}
-                        className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${accommodation[displayGuests[1]] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
+                        className={`w-full py-3 rounded-md text-base transition-colors focus:outline-none ${accommodation[guestName] === option ? 'bg-[#08080A] text-white' : 'bg-[#F5F5F5] text-[#08080A]'}`}
                         style={{ fontFamily: 'Montserrat', fontSize: '15px' }}
-                        onClick={() => handleSelect(displayGuests[1], option as 'Yes' | 'No')}
+                        onClick={() => handleSelect(guestName, option as 'Yes' | 'No')}
                       >
                         {option}
                       </button>
                     ))}
                   </div>
                 </div>
-              )}
+              ))}
             </div>
             {/* Continue Button */}
             <button

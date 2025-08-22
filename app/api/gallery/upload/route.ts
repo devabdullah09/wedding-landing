@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { bunnyNetService } from '@/lib/bunny-net';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,41 +16,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Album type and media type are required' }, { status: 400 });
     }
 
-    const uploadDir = join(process.cwd(), 'public', 'uploads', albumType, mediaType);
-    
-    // Create directory if it doesn't exist
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
+    // Validate album type and media type
+    if (!['wedding-day', 'party-day'].includes(albumType)) {
+      return NextResponse.json({ error: 'Invalid album type' }, { status: 400 });
     }
 
-    const uploadedFiles: string[] = [];
-
-    for (const file of files) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      // Generate unique filename
-      const timestamp = Date.now();
-      const randomString = Math.random().toString(36).substring(2, 15);
-      const fileExtension = file.name.split('.').pop();
-      const fileName = `${timestamp}_${randomString}.${fileExtension}`;
-      
-      const filePath = join(uploadDir, fileName);
-      await writeFile(filePath, buffer);
-      
-      // Return the public URL
-      const publicUrl = `/uploads/${albumType}/${mediaType}/${fileName}`;
-      uploadedFiles.push(publicUrl);
+    if (!['photos', 'videos'].includes(mediaType)) {
+      return NextResponse.json({ error: 'Invalid media type' }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      files: uploadedFiles,
-      message: `${uploadedFiles.length} file(s) uploaded successfully` 
+    // Upload files to Bunny.net
+    const uploadResult = await bunnyNetService.uploadFiles(files, albumType as 'wedding-day' | 'party-day', mediaType as 'photos' | 'videos');
+
+    return NextResponse.json({
+      success: true,
+      files: uploadResult.files,
+      cdnUrls: uploadResult.cdnUrls,
+      message: uploadResult.message
     });
 
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Upload failed', 
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 } 

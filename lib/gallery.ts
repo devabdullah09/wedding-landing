@@ -1,12 +1,16 @@
+import { env } from './env-loader';
+
 export interface GalleryFile {
   url: string;
   filename: string;
   uploadedAt: string;
+  cdnUrl?: string;
 }
 
 export interface UploadResponse {
   success: boolean;
   files: string[];
+  cdnUrls: string[];
   message: string;
 }
 
@@ -38,7 +42,8 @@ export async function uploadFiles(
   });
 
   if (!response.ok) {
-    throw new Error('Upload failed');
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Upload failed');
   }
 
   return response.json();
@@ -75,4 +80,11 @@ export function getInitialVideos(): { src: string; thumb: string }[] {
     { src: '/videos/sample1.mp4', thumb: '/images/placeholder.jpg' },
     { src: '/videos/sample2.mp4', thumb: '/images/placeholder.jpg' },
   ];
+}
+
+// Helper function to get CDN URL for a file
+export function getCdnUrl(fileName: string, albumType: string, mediaType: string): string {
+  // Use the public environment variable for client-side access
+  const cdnBaseUrl = process.env.NEXT_PUBLIC_BUNNY_NET_CDN_URL || 'https://cdn.vesello.net';
+  return `${cdnBaseUrl}/${albumType}/${mediaType}/${fileName}`;
 } 

@@ -61,9 +61,6 @@ export default function NotePage() {
     );
   }
 
-  // For now, we'll show only the first two guests as in the original design
-  const displayGuests = guests.slice(0, 2);
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#fff]" style={{ fontFamily: 'Montserrat, Arial, Helvetica, sans-serif' }}>
       <div className="flex flex-col items-center justify-center flex-1 py-12">
@@ -82,15 +79,12 @@ export default function NotePage() {
                 <span className="text-3xl md:text-4xl" style={{ fontFamily: 'Sail, cursive', fontWeight: 400, color: '#08080A', letterSpacing: '0.5px', lineHeight: 1.1, fontStyle: 'italic', marginTop: '.5rem' }}>To The Couple</span>
                 <div className="w-24 h-[2px] bg-[#B7B7B7] mx-auto my-4" />
               </div>
-              <div className="text-base md:text-lg mt-2 mb-8 tracking-normal" style={{ color: '#08080A', fontWeight: 400, fontFamily: 'Montserrat', letterSpacing: '0.01em' }}>
-                {displayGuests[0]}:
-              </div>
             </div>
             {/* Guest Notes */}
-            <div className="w-full max-w-[900px] mx-auto grid grid-cols-2 gap-x-6 gap-y-6 mb-12 mt-2">
-              {displayGuests.map((guestName) => (
+            <div className="w-full max-w-[900px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 mb-12 mt-2">
+              {guests.map((guestName, idx) => (
                 <div key={guestName} className="flex flex-col items-center w-full">
-                  <div className="text-sm md:text-base text-[#08080A] uppercase mb-2 text-left w-full" style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guestName}</div>
+                  <div className={`text-sm md:text-base text-[#08080A] uppercase mb-2 text-left w-full ${idx % 2 === 1 ? 'text-right' : ''}`} style={{ fontFamily: 'Montserrat', letterSpacing: '0.5px' }}>{guestName}</div>
                   <textarea
                     className="w-full h-32 rounded-md border border-[#B7B7B7] bg-[#F5F5F5] p-4 text-base focus:outline-none focus:border-[#E5B574] resize-none"
                     style={{ fontFamily: 'Montserrat', fontSize: '15px' }}

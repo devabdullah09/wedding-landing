@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { bunnyNetService } from '@/lib/bunny-net';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,38 +11,52 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Album type and media type are required' }, { status: 400 });
     }
 
-    const uploadDir = join(process.cwd(), 'public', 'uploads', albumType, mediaType);
-    
-    // Check if directory exists
-    if (!existsSync(uploadDir)) {
-      return NextResponse.json({ files: [] });
+    // Validate album type and media type
+    if (!['wedding-day', 'party-day'].includes(albumType)) {
+      return NextResponse.json({ error: 'Invalid album type' }, { status: 400 });
     }
 
-    // Read all files in the directory
-    const files = await readdir(uploadDir);
-    
-    // Filter for image/video files and create public URLs
-    const mediaFiles = files
-      .filter(file => {
-        const ext = file.toLowerCase();
-        if (mediaType === 'photos') {
-          return ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.png') || ext.endsWith('.gif') || ext.endsWith('.webp');
-        } else {
-          return ext.endsWith('.mp4') || ext.endsWith('.mov') || ext.endsWith('.avi') || ext.endsWith('.webm');
-        }
-      })
-      .map(file => ({
-        url: `/uploads/${albumType}/${mediaType}/${file}`,
-        filename: file,
-        uploadedAt: new Date(parseInt(file.split('_')[0])).toISOString()
-      }))
-      .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()); // Sort by newest first
+    if (!['photos', 'videos'].includes(mediaType)) {
+      return NextResponse.json({ error: 'Invalid media type' }, { status: 400 });
+    }
 
-    return NextResponse.json({ 
-      success: true, 
-      files: mediaFiles,
-      count: mediaFiles.length
-    });
+    try {
+      // List files from Bunny.net Storage
+      const files = await bunnyNetService.listFiles(albumType, mediaType);
+      
+      // Filter for image/video files and create CDN URLs
+      const mediaFiles = files
+        .filter(file => {
+          const ext = file.toLowerCase();
+          if (mediaType === 'photos') {
+            return ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.png') || ext.endsWith('.gif') || ext.endsWith('.webp') || ext.endsWith('.avif');
+          } else {
+            return ext.endsWith('.mp4') || ext.endsWith('.mov') || ext.endsWith('.avi') || ext.endsWith('.webm');
+          }
+        })
+        .map(file => ({
+          url: bunnyNetService.getCdnUrl(file, albumType, mediaType),
+          cdnUrl: bunnyNetService.getCdnUrl(file, albumType, mediaType),
+          filename: file,
+          uploadedAt: new Date(parseInt(file.split('_')[0])).toISOString()
+        }))
+        .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()); // Sort by newest first
+
+      return NextResponse.json({ 
+        success: true, 
+        files: mediaFiles,
+        count: mediaFiles.length
+      });
+
+    } catch (bunnyError) {
+      console.error('Error fetching from Bunny.net:', bunnyError);
+      // Return empty result if Bunny.net is not accessible
+      return NextResponse.json({ 
+        success: true, 
+        files: [],
+        count: 0
+      });
+    }
 
   } catch (error) {
     console.error('Error fetching images:', error);

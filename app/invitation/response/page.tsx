@@ -83,17 +83,7 @@ export default function RSVPResponsePage() {
           </div>
         </div>
       </div>
-      {/* Footer */}
-      <footer className="w-full bg-[#08080A] text-white py-6 px-8 flex flex-col md:flex-row items-center justify-between mt-12">
-        <div className="text-xs md:text-sm" style={{ fontFamily: 'Montserrat' }}>
-          © 2025 Lucas & Mia<br />Powered by Vesello
-        </div>
-        <div className="mt-4 md:mt-0">
-          <button className="border border-white rounded px-4 py-1 text-xs hover:bg-white hover:text-[#08080A] transition-colors" style={{ fontFamily: 'Montserrat' }}>
-            LOGIN
-          </button>
-        </div>
-      </footer>
+     
     </div>
   );
 } 

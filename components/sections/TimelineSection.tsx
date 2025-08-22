@@ -52,13 +52,13 @@ export default function WeddingTimeline() {
         <div className="relative w-full flex flex-col justify-center items-center overflow-visible px-4 sm:px-6" 
              style={{ 
                minHeight: 'clamp(400px, 60vh, 600px)', 
-               maxWidth: '500px' 
+               maxWidth: '500px'
              }}>
           {/* Timeline vertical line (absolute, spans all events) */}
           <div className="absolute" style={{ 
             left: '50%', 
-            top: 0, 
-            bottom: 0, 
+            top: 0, // span full height
+            bottom: 0, // span full height
             width: '3px', 
             background: '#E5B574', 
             transform: 'translateX(-50%)', 
@@ -69,7 +69,7 @@ export default function WeddingTimeline() {
           {events.map((event, idx, arr) => (
             <div key={event.time} className="flex flex-row items-center w-full relative" 
                  style={{ 
-                   minHeight: 'clamp(60px, 8vh, 70px)', 
+                   minHeight: '56px', // fixed height for all rows
                    marginBottom: idx !== arr.length - 1 ? 'clamp(15px, 3vh, 20px)' : 0 
                  }}>
               {/* Left side - Time */}
@@ -88,28 +88,30 @@ export default function WeddingTimeline() {
                 </span>
               </div>
               {/* Center - Dot and horizontal line */}
-              <div className="flex items-center justify-center relative" style={{ width: 'clamp(60px, 15vw, 80px)', zIndex: 2 }}>
+              <div className="flex items-center justify-center relative" style={{ width: '48px', minWidth: '48px', maxWidth: '48px', height: '56px', zIndex: 2 }}>
                 {/* Dot */}
                 <div style={{ 
-                  width: 'clamp(12px, 3vw, 16px)', 
-                  height: 'clamp(12px, 3vw, 16px)', 
+                  width: '16px', 
+                  height: '16px', 
                   background: '#E5B574', 
                   border: '2px solid #C18037', 
                   borderRadius: '50%', 
                   position: 'absolute',
                   left: '50%',
-                  transform: 'translateX(-50%)',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
                   zIndex: 3,
                   boxShadow: '0 0 0 2px #fff'
                 }} />
                 {/* Horizontal line */}
                 <div style={{ 
-                  width: 'clamp(40px, 10vw, 60px)', 
+                  width: '48px', 
                   height: '2px', 
                   background: '#E5B574', 
                   position: 'absolute',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
+                  left: '0',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
                   zIndex: 1
                 }} />
               </div>
